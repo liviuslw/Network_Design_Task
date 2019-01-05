@@ -86,8 +86,8 @@ if __name__=='__main__':
             loss.backward()
             optimizer.step() # apply gradients
 
-            temp_r = accuracy(predict,output)
+            temp_r = accuracy(predict, output)
             result.append(temp_r)
             print('Epoch [ %d]  step: %d Accuracy : %s'%(e, step, temp_r))
 
-    print('final 100 step mean accuracy:',np.mean(result[-100:]))
+    print('final 100 step mean accuracy:', np.mean(result[-100:]))
