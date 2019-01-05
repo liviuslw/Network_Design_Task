@@ -56,8 +56,8 @@ def accuracy(predict, output):
 
 if __name__=='__main__':
     pwd = os.getcwd()
-    input_file = pwd+'/task8_train_input.csv'
-    output_file = pwd+'/task8_train_output.csv'
+    input_file = pwd + '/task8_train_input.csv'
+    output_file = pwd + '/task8_train_output.csv'
     params = {'lr': 0.02,
               'epochs': 1,
               'batch_size': 32,
@@ -69,7 +69,7 @@ if __name__=='__main__':
     optimizer = optim.Adam(net.parameters(), lr=params['lr'])
     loss_fn = nn.CrossEntropyLoss()
 
-    for e in range(params['epochs']):
+    for e in range(params['epoches']):
         result = []
         for step,batch_data in enumerate(dataloader):
             net.zero_grad()
