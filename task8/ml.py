@@ -21,27 +21,26 @@ class Dataset(data.Dataset):
         return self.input.shape[0]
 
 class net_Task8(torch.nn.Module): # accuracy achieves 0.70 within 1 epoch
-    def __init__(self, in_num, out_num):
+    def __init__(self):
         super(net_Task8, self).__init__()
 
         self.emb = nn.Embedding(10, 8) #0-9
-        self.lstm = nn.LSTM(8, 16, batch_first=True, dropout=0)
-        self.gru = nn.GRU(16, 20, batch_first=True)
-        self.dense1 = nn.Linear(400, 300)
-        self.dense2 = nn.Linear(300, 200)
+        self.gru1 = nn.GRU(8, 16, batch_first=True, bidirectional=True)
+        self.gru2 = nn.GRU(32, 20, batch_first=True, bidirectional=True)
+        self.gru3 = nn.GRU(40, 20, batch_first=True)
+        self.dense = nn.Linear(400, 200)
 
     def forward(self,x):
         x = self.emb(x) # 32,20,8
-        x, _ = self.lstm(x) # 32,20,16
+        x, _ = self.gru1(x) # 32,20,32
         x = F.relu(x)
-        x, _ = self.gru(x) #32,20,20
+        x, _ = self.gru2(x) #32,20,40
+        x = F.relu(x)
+        x, _ = self.gru3(x) # 32, 20, 20
         x = F.relu(x)
         x = x.reshape(x.shape[0], -1) # 32,400
 
-        x = self.dense1(x) #32,300
-        x = F.relu(x)
-        x = self.dense2(x) # 32,200
-
+        x = self.dense(x) #32,200
         x = x.reshape(x.shape[0], 20, 10) # 32, 20, 10
         return x
 
@@ -55,23 +54,21 @@ def accuracy(predict, output):
     return acc
 
 if __name__=='__main__':
-    pwd = os.getcwd()
-    input_file = pwd + '/task8_train_input.csv'
-    output_file = pwd + '/task8_train_output.csv'
+    cwd = os.getcwd()
+    input_file = cwd + '/task8_train_input.csv'
+    output_file = cwd + '/task8_train_output.csv'
     params = {'lr': 0.02,
-              'epochs': 1,
-              'batch_size': 32,
-              'in_num': 10,
-              'out_num': 10}
+              'epoches': 1,
+              'batch_size': 32}
     dataset = Dataset(params, input_file, output_file)
     dataloader = data.DataLoader(dataset, batch_size=params['batch_size'], shuffle=True)
-    net = net_Task8(params['in_num'], params['out_num'])
+    net = net_Task8()
     optimizer = optim.Adam(net.parameters(), lr=params['lr'])
     loss_fn = nn.CrossEntropyLoss()
 
     for e in range(params['epoches']):
         result = []
-        for step,batch_data in enumerate(dataloader):
+        for step, batch_data in enumerate(dataloader):
             net.zero_grad()
             input = batch_data[0]
             output = batch_data[1]
@@ -86,8 +83,8 @@ if __name__=='__main__':
             loss.backward()
             optimizer.step() # apply gradients
 
-            temp_r = accuracy(predict, output)
-            result.append(temp_r)
-            print('Epoch [ %d]  step: %d Accuracy : %s'%(e, step, temp_r))
+            temp_acc = accuracy(predict, output)
+            result.append(temp_acc)
+            print('Epoch [ %d]  step: %d Accuracy : %s'%(e, step, temp_acc))
 
-    print('final 100 step mean accuracy:', np.mean(result[-100:]))
+    print('Final 100 step mean accuracy:', np.mean(result[-100:]))
