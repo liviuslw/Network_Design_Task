@@ -97,8 +97,7 @@ if __name__=='__main__':
     for i in test_dataset:
         label = np.zeros(20)
         length = len(np.nonzero(i))
-        no_zero = list(reversed(i[:length]))
-        label[:length] = no_zero
+        label[:length] = list(reversed(i[:length]))
         labels.append(label)
     labels = torch.tensor(labels)
     acc = accuracy(test_predict, labels)
