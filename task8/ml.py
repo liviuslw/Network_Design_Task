@@ -86,3 +86,20 @@ if __name__=='__main__':
             print('Epoch [ %d]  step: %d Accuracy : %s'%(e, step, temp_acc))
 
     print('Final 100 step mean accuracy:', np.mean(result[-100:]))
+    
+    # eval
+    test_input_file = cwd + '/task8_test_input.csv'
+    test_dataset = pd.read_csv(test_input_file).values
+    test_dataset = torch.from_numpy(test_dataset)
+
+    test_predict = net(test_dataset)
+    labels = []
+    for i in test_dataset:
+        label = np.zeros(20)
+        length = len(np.nonzero(i))
+        no_zero = list(reversed(i[:length]))
+        label[:length] = no_zero
+        labels.append(label)
+    labels = torch.tensor(labels)
+    acc = accuracy(test_predict, labels)
+    print(acc)
