@@ -9,8 +9,7 @@ import os
 
 
 class Dataset(data.Dataset):
-    def __init__(self, params, input_file, output_file):
-        self.params = params
+    def __init__(self, input_file, output_file):
         self.input = pd.read_csv(input_file).values
         self.output = pd.read_csv(output_file).values
 
@@ -45,8 +44,8 @@ class net_Task8(torch.nn.Module): # accuracy achieves 0.70 within 1 epoch
         return x
 
 def accuracy(predict, output):
-    predict = F.softmax(predict,dim=-1)
-    predict = torch.max(predict,-1)[1]
+    predict = F.softmax(predict, dim=-1)
+    predict = torch.max(predict, dim=-1)[1]
 
     pre_num = predict.numpy()
     out_num = output.numpy()
@@ -60,7 +59,7 @@ if __name__=='__main__':
     params = {'lr': 0.02,
               'epoches': 1,
               'batch_size': 32}
-    dataset = Dataset(params, input_file, output_file)
+    dataset = Dataset(input_file, output_file)
     dataloader = data.DataLoader(dataset, batch_size=params['batch_size'], shuffle=True)
     net = net_Task8()
     optimizer = optim.Adam(net.parameters(), lr=params['lr'])
@@ -75,7 +74,6 @@ if __name__=='__main__':
 
             predict = net(input)
 
-            loss = 0
             predict = predict.reshape(-1, 10)
             output = output.reshape(-1)
             loss = loss_fn(predict, output)
